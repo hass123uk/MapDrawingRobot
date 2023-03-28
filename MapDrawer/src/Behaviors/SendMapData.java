@@ -11,49 +11,46 @@ import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.subsumption.Behavior;
 
 public class SendMapData implements Behavior {
-	
+
 	private boolean _suppressed = false;
-    private DataOutputStream out;
-    private OdometryPoseProvider pose;
+	private DataOutputStream out;
+	private OdometryPoseProvider pose;
 	private long lastTimeDataSent;
 	private Pose position;
 
-
-	
-	public SendMapData(OdometryPoseProvider pose, DataOutputStream out){
-    	this.pose = pose;
-    	this.out = out;
-    	lastTimeDataSent = 0;
+	public SendMapData(OdometryPoseProvider pose, DataOutputStream out) {
+		this.pose = pose;
+		this.out = out;
+		lastTimeDataSent = 0;
 	}
 
 	@Override
 	public boolean takeControl() {
-		if ( System.currentTimeMillis() - lastTimeDataSent > 2000) {
+		if (System.currentTimeMillis() - lastTimeDataSent > 2000) {
 
-//			System.out.println("SendMapData");
-			 position = pose.getPose();
-	         return true;
-	      } else {
-	         return false;
-	      }
+			// System.out.println("SendMapData");
+			position = pose.getPose();
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
 	public void action() {
-		try{
-		_suppressed = false;
-		out.writeUTF("MapData");
-		out.writeFloat(position.getX());
-		out.writeFloat(position.getY());
-		out.flush();
-		
-		
-		lastTimeDataSent = System.currentTimeMillis();
-		
-		}catch(IOException e){
+		try {
+			_suppressed = false;
+			out.writeUTF("MapData");
+			out.writeFloat(position.getX());
+			out.writeFloat(position.getY());
+			out.flush();
+
+			lastTimeDataSent = System.currentTimeMillis();
+
+		} catch (IOException e) {
 			System.out.println("Error - " + e.getMessage());
 		}
-		
+
 	}
 
 	@Override

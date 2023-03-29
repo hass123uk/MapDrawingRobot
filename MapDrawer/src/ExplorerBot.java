@@ -34,7 +34,7 @@ public class ExplorerBot {
 		Behavior b1 = new ExploreBehavior(pilot, nav);
 		Behavior b2 = new ObjectDetectBehavior(pilot, pose, out);
 		Behavior b3 = new SendMapData(pose, out);
-		Behavior b4 = new ReturnToStart(pilot, pose, nav);
+		// Behavior b4 = new ReturnToStart(pilot, pose, nav);
 		Behavior b5 = new ExitBehavior();
 		Behavior[] behaviorList = { b1, b2, b3, b5 };
 		Arbitrator arbitrator = new Arbitrator(behaviorList);

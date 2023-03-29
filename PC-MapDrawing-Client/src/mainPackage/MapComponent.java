@@ -24,11 +24,11 @@ public class MapComponent extends JComponent {
 		g2d.drawLine(0, getHeight() / 2, getWidth(), getHeight() / 2);
 		g2d.drawLine(getWidth() / 2, 0, getWidth() / 2, getHeight());
 
-		for (Point p : points) {
+		for (Point p : new ArrayList<>(points)) {
 			g2d.fillOval(getWidth() / 2 + p.x, getHeight() / 2 - p.y, 3, 3);
 		}
 
-		for (Point p : obstacles) {
+		for (Point p : new ArrayList<>(obstacles)) {
 			gObstacles.fillOval(getWidth() / 2 + p.x, getHeight() / 2 - p.y, 3, 3);
 		}
 	}

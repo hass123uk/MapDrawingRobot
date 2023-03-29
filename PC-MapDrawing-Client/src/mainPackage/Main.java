@@ -1,14 +1,13 @@
 package mainPackage;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.net.Socket;
 
 import javax.swing.JFrame;
 
 public class Main {
-	public static void main(String[] args) throws IOException {
-		System.out.println("Starting PC map drawing client - waiting for connection from 10.0.1.1:8080");
+	public static void main(String[] args) {
+		System.out.println("Starting PC map drawing client - waiting for connections");
 
 		JFrame frame = new JFrame();
 		frame.setTitle("Robot Map Drawer");
@@ -18,40 +17,45 @@ public class Main {
 		frame.add(mc);
 		frame.setVisible(true);
 
-		Socket connection = new Socket("10.0.1.1", 8080);
-		DataInputStream in = new DataInputStream(connection.getInputStream());
+		// This is the address for the EV3 but to work with the Fake robot we set it to
+		// localhost.
+		// String ev3Address = "10.0.1.1";
 
-		if (connection.isConnected()) {
-			boolean done = false;
-			while (!done) {
-				try {
-					String MapDataType = in.readUTF();
-					int x = Math.round(in.readFloat());
-					int y = Math.round(in.readFloat());
+		try (Socket connection = new Socket("localhost", 60010);
+				DataInputStream in = new DataInputStream(connection.getInputStream());) {
+			while (true) {
+				if (!connection.isConnected()) {
+					System.out.println("No longer connected to socket.");
+					break;
+				}
 
-					switch (MapDataType) {
-						case "Obstacle":
-							int range = Math.round(in.readFloat());
-							mc.addObstacle(x, y, range);
-							break;
-						case "MapData":
-							mc.addPosition(x, y);
-							break;
-					}
+				String MapDataType = in.readUTF();
+				int x = Math.round(in.readFloat());
+				int y = Math.round(in.readFloat());
 
-					mc.addPosition(x, y);
-					System.out.println("x = " + x);
-					System.out.println("y = " + y);
+				System.out.println("MapDataType = " + MapDataType);
+				System.out.println("x = " + x);
+				System.out.println("y = " + y);
 
-					if (!connection.isConnected()) {
-						done = true;
-					}
-				} catch (IOException e) {
-					System.out.println("ERROR - " + e.getMessage());
+				switch (MapDataType) {
+					case "Obstacle":
+						int range = Math.round(in.readFloat());
+						System.out.println("range = " + range);
+
+						mc.addObstacle(x, y, range);
+						break;
+					case "MapData":
+						mc.addPosition(x, y);
+						break;
+					default:
+						System.out.println("Unknown data type - " + MapDataType);
+						break;
 				}
 			}
+		} catch (Exception e) {
+			System.err.println("Error - " + e.getMessage());
 		}
 
-		connection.close();
+		System.exit(0);
 	}
 }

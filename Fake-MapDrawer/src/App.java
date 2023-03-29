@@ -1,6 +1,7 @@
 package src;
 
 import java.io.DataOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -8,33 +9,35 @@ public class App {
     public static void main(String[] args) throws Exception {
         System.out.println("Starting fake robot");
         try (Scanner sc = new Scanner(System.in);
-                Socket connection = new Socket("localhost", 60010)) {
+                ServerSocket server = new ServerSocket(60010);
+                Socket connection = server.accept();
+                DataOutputStream out = new DataOutputStream(connection.getOutputStream())) {
 
-            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            System.out.println("Connection established - press to send data");
+            sc.nextLine();
 
-            System.out.println("Connection established");
+            int iteration = 1;
+            int x = 0;
+            int y = 5;
+            int range = 10;
+
             while (true) {
-                out.writeUTF("MapData");
-                out.writeFloat(5);
-                out.writeFloat(5);
-                out.writeUTF("MapData");
-                out.writeFloat(7);
-                out.writeFloat(5);
-                out.writeUTF("MapData");
-                out.writeFloat(10);
-                out.writeFloat(5);
-                out.writeUTF("MapData");
-                out.writeFloat(15);
-                out.writeFloat(5);
+                String type = iteration % 4 == 1 ? "MapData" : "Obstacle";
+                out.writeUTF(type);
+                out.writeFloat(x += 2);
+                out.writeFloat(y);
 
-                out.writeUTF("Obstacle");
-                out.writeFloat(20);
-                out.writeFloat(5);
+                if (type == "Obstacle")
+                    out.writeFloat(range);
+
+                System.out.println("Type = " + type);
 
                 out.flush();
 
                 System.out.println("Enter anything to send the same data again");
-                sc.nextInt();
+                sc.nextLine();
+
+                iteration++;
             }
         }
     }
